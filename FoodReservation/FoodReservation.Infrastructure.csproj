@@ -9,6 +9,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
+		<PackageReference Include="Mediator.Abstractions" Version="3.0.0-preview.27" />
 		<PackageReference Include="Mediator.SourceGenerator" Version="3.0.0-preview.27">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -17,6 +18,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\FoodReservation.Application\FoodReservation.Application.csproj" />
 		<ProjectReference Include="..\FoodReservation.Domain\FoodReservation.Domain.csproj" />
 	</ItemGroup>
 

@@ -8,6 +8,11 @@
 
 	<ItemGroup>
 		<PackageReference Include="Mediator.Abstractions" Version="3.0.0-preview.27" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\FoodReservation.Domain\FoodReservation.Domain.csproj" />
 	</ItemGroup>
 
 </Project>
