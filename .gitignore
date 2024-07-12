@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/elasticsearch_data
+/grafana_data
+/kibana_data
+/prometheus_data/data
