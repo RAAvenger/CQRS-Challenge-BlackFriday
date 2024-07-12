@@ -2,7 +2,7 @@
 
 namespace FoodReservation.Infrastructure.Controllers.Dtos
 {
-    public sealed class DeliverFoodToUserRequestDto
+    public sealed record DeliverFoodToUserRequestDto
     {
         [JsonPropertyName("date")]
         public DateOnly Date { get; set; }
