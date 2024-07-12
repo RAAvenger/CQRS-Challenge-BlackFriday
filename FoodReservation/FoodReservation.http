@@ -1,6 +1,0 @@
-@FoodReservation_HostAddress = http://localhost:5285
-
-GET {{FoodReservation_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
