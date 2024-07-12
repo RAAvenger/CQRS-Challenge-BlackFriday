@@ -18,7 +18,7 @@ namespace FoodReservation.Infrastructure.Controllers
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
 
-        [HttpPost("/deliver")]
+        [HttpPost("deliver")]
         public async Task<ActionResult> DeliverFoodToUser([FromBody] DeliverFoodToUserRequestDto request,
             CancellationToken cancellationToken)
         {
@@ -40,7 +40,7 @@ namespace FoodReservation.Infrastructure.Controllers
             return Ok(result);
         }
 
-        [HttpGet("/users/{userId}")]
+        [HttpGet("users/{userId}")]
         public async Task<ActionResult<IReadOnlyCollection<UserReservedFood>>> GetUserFoods([FromRoute] Guid userId,
             CancellationToken cancellationToken)
         {
@@ -48,7 +48,7 @@ namespace FoodReservation.Infrastructure.Controllers
             return Ok(result);
         }
 
-        [HttpPost("/increase-amount")]
+        [HttpPost("increase-amount")]
         public async Task<ActionResult> IncreaseReservableFoodAmount([FromBody] IncreaseReservableFoodAmountRequestDto request,
             CancellationToken cancellationToken)
         {
@@ -61,7 +61,7 @@ namespace FoodReservation.Infrastructure.Controllers
             return Ok();
         }
 
-        [HttpPost("/reserve")]
+        [HttpPost("reserve")]
         public async Task<ActionResult> ReserveFoodForUser([FromBody] ReserveFoodRequestDto request,
             CancellationToken cancellationToken)
         {
