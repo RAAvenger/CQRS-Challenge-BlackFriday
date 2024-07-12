@@ -7,4 +7,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Bogus" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FoodReservation.Domain\FoodReservation.Domain.csproj" />
+    <ProjectReference Include="..\FoodReservation\FoodReservation.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

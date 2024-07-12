@@ -22,8 +22,9 @@ public sealed class GetRemainingFoodsForGivenDateQueryHandler : IRequestHandler<
     public async ValueTask<IReadOnlyCollection<ReservableDailyFood>> Handle(GetRemainingFoodsForGivenDateQuery request, CancellationToken cancellationToken)
     {
         var reservations = _dbContext.Reservations
+            .Where(x => x.Date == request.Date)
             .GroupBy(x => x.FoodId).Select(x => new { FoodId = x.Key, ReservationsCount = x.Count() });
-        return await _dbContext.FoodMetadata
+        return await _dbContext.DailyFoods
             .Where(x => x.Date == request.Date)
             .Join(_dbContext.Foods, x => x.FoodId, y => y.Id, (x, y) => new
             {

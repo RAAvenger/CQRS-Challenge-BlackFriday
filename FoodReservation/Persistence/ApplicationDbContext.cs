@@ -10,11 +10,11 @@ namespace FoodReservation.Infrastructure.Persistence
         {
         }
 
-        public DbSet<ReservableFoodMetadata> FoodMetadata { get; }
+        public DbSet<ReservableDailyFood> DailyFoods { get; set; }
 
-        public DbSet<ReservableFood> Foods { get; }
+        public DbSet<ReservableFood> Foods { get; set; }
 
-        public DbSet<Domain.Entities.FoodReservation> Reservations { get; }
+        public DbSet<Domain.Entities.FoodReservation> Reservations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,7 +23,7 @@ namespace FoodReservation.Infrastructure.Persistence
             modelBuilder.Entity<ReservableFood>()
                 .HasKey(x => x.Id);
 
-            modelBuilder.Entity<ReservableFoodMetadata>()
+            modelBuilder.Entity<ReservableDailyFood>()
                 .HasKey(x => new { x.FoodId, x.Date });
 
             modelBuilder.Entity<Domain.Entities.FoodReservation>()
@@ -31,7 +31,7 @@ namespace FoodReservation.Infrastructure.Persistence
 
             // relations
             modelBuilder.Entity<ReservableFood>()
-                .HasMany<ReservableFoodMetadata>()
+                .HasMany<ReservableDailyFood>()
                 .WithOne()
                 .HasForeignKey(x => x.FoodId)
                 .HasPrincipalKey(x => x.Id);
@@ -42,7 +42,7 @@ namespace FoodReservation.Infrastructure.Persistence
                 .HasForeignKey(x => x.FoodId)
                 .HasPrincipalKey(x => x.Id);
 
-            modelBuilder.Entity<ReservableFoodMetadata>()
+            modelBuilder.Entity<ReservableDailyFood>()
                 .HasMany<Domain.Entities.FoodReservation>()
                 .WithOne()
                 .HasForeignKey(x => new { x.FoodId, x.Date })

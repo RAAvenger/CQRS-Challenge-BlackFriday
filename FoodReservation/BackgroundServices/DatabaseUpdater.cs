@@ -1,5 +1,6 @@
 ﻿using FoodReservation.Infrastructure.BackgroundServices.Logs;
 using FoodReservation.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace FoodReservation.Infrastructure.BackgroundServices
 {
@@ -21,7 +22,16 @@ namespace FoodReservation.Infrastructure.BackgroundServices
             try
             {
                 DatabaseUpdaterLogs.StartMigration(_logger);
-                await dbContext.Database.EnsureCreatedAsync(cancellationToken);
+                var pendingMigrations = (await dbContext.Database.GetPendingMigrationsAsync(cancellationToken)).ToArray();
+                if (pendingMigrations.Length > 0)
+                {
+                    DatabaseUpdaterLogs.RunningPendingMigrations(_logger, pendingMigrations);
+                    await dbContext.Database.MigrateAsync(cancellationToken: cancellationToken);
+                }
+                else
+                {
+                    DatabaseUpdaterLogs.NoPendingMigrations(_logger);
+                }
                 DatabaseUpdaterLogs.EndMigration(_logger);
             }
             catch (Exception ex)

@@ -22,7 +22,7 @@ public sealed class UpdateFoodAmountCommandHandler : IRequestHandler<UpdateFoodA
 
     public async ValueTask<Unit> Handle(UpdateFoodAmountCommand request, CancellationToken cancellationToken)
     {
-        var food = await _dbContext.FoodMetadata
+        var food = await _dbContext.DailyFoods
             .FirstAsync(x => x.FoodId == request.FoodId && x.Date == request.Date, cancellationToken: cancellationToken);
         food.Amount += request.Amount;
         await _dbContext.SaveChangesAsync(cancellationToken);

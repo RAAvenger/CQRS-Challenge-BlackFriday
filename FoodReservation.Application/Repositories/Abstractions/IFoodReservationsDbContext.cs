@@ -5,7 +5,7 @@ namespace FoodReservation.Application.Repositories.Abstractions
 {
     public interface IFoodReservationsDbContext
     {
-        DbSet<ReservableFoodMetadata> FoodMetadata { get; }
+        DbSet<ReservableDailyFood> DailyFoods { get; }
 
         DbSet<ReservableFood> Foods { get; }
 

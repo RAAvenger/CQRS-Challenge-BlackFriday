@@ -1,16 +1,17 @@
 <Project>
-	<PropertyGroup>
-		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-	</PropertyGroup>
-	<ItemGroup>
-		<PackageVersion Include="DateOnlyTimeOnly.AspNet" Version="2.1.1" />
-		<PackageVersion Include="DateOnlyTimeOnly.AspNet.Swashbuckle" Version="2.1.1" />
-		<PackageVersion Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.7" />
-		<PackageVersion Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
-		<PackageVersion Include="Mediator.Abstractions" Version="3.0.0-preview.27" />
-		<PackageVersion Include="Mediator.SourceGenerator" Version="3.0.0-preview.27" />
-		<PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
-		<PackageVersion Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-	</ItemGroup>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Bogus" Version="35.5.1" />
+    <PackageVersion Include="DateOnlyTimeOnly.AspNet" Version="2.1.1" />
+    <PackageVersion Include="DateOnlyTimeOnly.AspNet.Swashbuckle" Version="2.1.1" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.7" />
+    <PackageVersion Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
+    <PackageVersion Include="Mediator.Abstractions" Version="3.0.0-preview.27" />
+    <PackageVersion Include="Mediator.SourceGenerator" Version="3.0.0-preview.27" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
 </Project>
