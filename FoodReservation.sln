@@ -13,10 +13,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{D5910DA3-6254-47F6-83AA-DFD9AD1A6069}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodReservation.DataGenerator", "FoodReservation.DataGenerator\FoodReservation.DataGenerator.csproj", "{A08F9B2E-D849-4246-B073-A8E2F98EE6D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FoodReservation.DataGenerator", "FoodReservation.DataGenerator\FoodReservation.DataGenerator.csproj", "{A08F9B2E-D849-4246-B073-A8E2F98EE6D4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7547F39D-1E42-45D1-BA0E-9ACAD179F594}"
 	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		.env = .env
 		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject

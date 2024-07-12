@@ -28,3 +28,7 @@ README.md
 !.git/config
 !.git/packed-refs
 !.git/refs/heads/**
+./grafana
+./jaeger
+./otel-collector
+./prometheus

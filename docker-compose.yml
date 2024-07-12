@@ -4,10 +4,10 @@ services:
   #our application
   FoodReservation:
     build:
-      dockerfile: FoodReservation.Infrastructure/Dockerfile
+      dockerfile: ./Dockerfile
       context: .
     hostname: food-reservation
-    image: FoodReservation
+    image: food-reservation
     environment:
       - ServiceName=FoodReservation
       - ASPNETCORE_HTTP_PORTS=80
@@ -147,7 +147,7 @@ services:
       timeout: 5s
       retries: 120
     networks:
-      - playground
+      - FoodReservation
 
   es01:
     depends_on:
