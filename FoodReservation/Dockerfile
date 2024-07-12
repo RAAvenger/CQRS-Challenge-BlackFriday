@@ -6,7 +6,7 @@ WORKDIR /app
 EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
+ARG BUILD_CONFIGURATION=Debug
 WORKDIR /src
 COPY ["FoodReservation/FoodReservation.Infrastructure.csproj", "FoodReservation/"]
 COPY ["FoodReservation.Application/FoodReservation.Application.csproj", "FoodReservation.Application/"]
@@ -21,7 +21,7 @@ WORKDIR "/src/FoodReservation"
 RUN dotnet build "./FoodReservation.Infrastructure.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
+ARG BUILD_CONFIGURATION=Debug
 RUN dotnet publish "./FoodReservation.Infrastructure.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final

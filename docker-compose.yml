@@ -1,10 +1,8 @@
-version: "3.5"
-
 services:
   #our application
   FoodReservation:
     build:
-      dockerfile: ./Dockerfile
+      dockerfile: FoodReservation/Dockerfile
       context: .
     hostname: food-reservation
     image: food-reservation
@@ -12,12 +10,13 @@ services:
       - ServiceName=FoodReservation
       - ASPNETCORE_HTTP_PORTS=80
       - ASPNETCORE_URLS=http://*:80
+      - ASPNETCORE_ENVIRONMENT=Development   
       - OTEL_EXPORTER_JAEGER_AGENT_HOST=jaeger
       - OTEL_EXPORTER_JAEGER_AGENT_PORT=6831
       - OTEL_EXPORTER_JAEGER_ENDPOINT=http://jaeger:14268/api/traces
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-    # ports:
-    #   - "127.0.0.1:32768:80"
+    ports:
+      - "127.0.0.1:32768:80"
     networks:
       - FoodReservation
 
