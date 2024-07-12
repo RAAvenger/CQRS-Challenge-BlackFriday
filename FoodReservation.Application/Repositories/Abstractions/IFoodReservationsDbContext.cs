@@ -11,6 +11,6 @@ namespace FoodReservation.Application.Repositories.Abstractions
 
         DbSet<Domain.Entities.FoodReservation> Reservations { get; }
 
-        Task SaveChangesAsync(CancellationToken cancellationToken);
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }
 }

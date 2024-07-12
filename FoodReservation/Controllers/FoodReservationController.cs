@@ -1,6 +1,7 @@
 ﻿using FoodReservation.Application;
 using FoodReservation.Application.Usecases.Dtos;
 using FoodReservation.Domain.Constants;
+using FoodReservation.Infrastructure.Controllers.Dtos;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +16,20 @@ namespace FoodReservation.Infrastructure.Controllers
         public FoodReservationController(IMediator mediator)
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+        }
+
+        [HttpPost("/deliver")]
+        public async Task<ActionResult> DeliverFoodToUser([FromBody] DeliverFoodToUserRequestDto request,
+            CancellationToken cancellationToken)
+        {
+            await _mediator.Send(new UpdateReservationStatusCommand
+            {
+                FoodId = request.FoodId,
+                Date = request.Date,
+                Status = ReservationStatuses.Delivered,
+                UserId = request.UserId
+            }, cancellationToken);
+            return Ok();
         }
 
         [HttpGet("{date}")]
@@ -34,47 +49,27 @@ namespace FoodReservation.Infrastructure.Controllers
         }
 
         [HttpPost("/increase-amount")]
-        public async Task<ActionResult> IncreaseReservableFoodAmount([FromBody] Guid foodId,
-            [FromBody] DateOnly date,
-            [FromBody] int amount,
+        public async Task<ActionResult> IncreaseReservableFoodAmount([FromBody] IncreaseReservableFoodAmountRequestDto request,
             CancellationToken cancellationToken)
         {
             await _mediator.Send(new UpdateFoodAmountCommand
             {
-                FoodId = foodId,
-                Amount = amount,
-                Date = date
-            }, cancellationToken);
-            return Ok();
-        }
-
-        [HttpPost("/deliver")]
-        public async Task<ActionResult> IncreaseReservableFoodAmount([FromBody] Guid foodId,
-            [FromBody] Guid userId,
-            [FromBody] DateOnly date,
-            CancellationToken cancellationToken)
-        {
-            await _mediator.Send(new UpdateReservationStatusCommand
-            {
-                FoodId = foodId,
-                Date = date,
-                Status = ReservationStatuses.Delivered,
-                UserId = userId
+                FoodId = request.FoodId,
+                Amount = request.Amount,
+                Date = request.Date
             }, cancellationToken);
             return Ok();
         }
 
         [HttpPost("/reserve")]
-        public async Task<ActionResult> ReserveFoodForUser([FromBody] Guid foodId,
-            [FromBody] Guid userId,
-            [FromBody] DateOnly date,
+        public async Task<ActionResult> ReserveFoodForUser([FromBody] ReserveFoodRequestDto request,
             CancellationToken cancellationToken)
         {
             await _mediator.Send(new AddReservationCommand
             {
-                FoodId = foodId,
-                Date = date,
-                UserId = userId
+                FoodId = request.FoodId,
+                Date = request.Date,
+                UserId = request.UserId
             }, cancellationToken);
             return Ok();
         }
