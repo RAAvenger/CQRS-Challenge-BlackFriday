@@ -14,6 +14,8 @@ builder.Services.AddHttpClient("food_reservation", options => { options.BaseAddr
 builder.Services.AddHostedService<DailyFoodsGetter>();
 builder.Services.AddHostedService<UsersFoodsGetter>();
 builder.Services.AddHostedService<UsersFoodsDeliverer>();
+builder.Services.AddHostedService<FoodIncreaser>();
+builder.Services.AddHostedService<FoodReservor>();
 
 var app = builder.Build();
 app.Run();

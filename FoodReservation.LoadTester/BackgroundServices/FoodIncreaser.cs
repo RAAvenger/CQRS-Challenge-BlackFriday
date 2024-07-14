@@ -7,11 +7,11 @@ using System.Net.Http.Json;
 
 namespace FoodReservation.LoadTester.BackgroundServices
 {
-    internal class UsersFoodsDeliverer : BackgroundService
+    internal class FoodIncreaser : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
 
-        public UsersFoodsDeliverer(IServiceProvider serviceProvider)
+        public FoodIncreaser(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
@@ -20,7 +20,7 @@ namespace FoodReservation.LoadTester.BackgroundServices
         {
             using var scope = _serviceProvider.CreateScope();
             using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            var reservations = await dbContext.Reservations.ToArrayAsync(stoppingToken);
+            var dailyFoods = await dbContext.DailyFoods.ToArrayAsync(stoppingToken);
             var httpClientFactory = scope.ServiceProvider.GetRequiredService<IHttpClientFactory>();
             var users = new List<Task>();
             var index = -1;
@@ -32,20 +32,20 @@ namespace FoodReservation.LoadTester.BackgroundServices
                         while (!stoppingToken.IsCancellationRequested)
                         {
                             var currentIndex = Interlocked.Increment(ref index);
-                            if (index >= reservations.Length)
+                            if (index >= dailyFoods.Length)
                             {
                                 return;
                             }
-                            var reservation = reservations[currentIndex];
-                            var deliverFoodRequest = new DeliverFoodToUserRequestDto
+                            var dailyFood = dailyFoods[currentIndex];
+                            var increaseReservableFoodAmountRequest = new IncreaseReservableFoodAmountRequestDto
                             {
-                                Date = reservation.Date,
-                                FoodId = reservation.FoodId,
-                                UserId = reservation.UserId,
+                                Date = dailyFood.Date,
+                                FoodId = dailyFood.FoodId,
+                                Amount = 1
                             };
 
-                            var content = JsonContent.Create(deliverFoodRequest);
-                            var response = await httpClient.PostAsync($"foods/deliver", content);
+                            var content = JsonContent.Create(increaseReservableFoodAmountRequest);
+                            var response = await httpClient.PostAsync($"foods/increase-amount", content);
                             await Task.Delay(TimeSpan.FromSeconds(1));
                         }
                     }, stoppingToken));

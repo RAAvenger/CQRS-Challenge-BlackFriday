@@ -2,7 +2,7 @@ using FoodReservation.Application.Repositories.Abstractions;
 using FoodReservation.Infrastructure.BackgroundServices;
 using FoodReservation.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using Npgsql;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -10,15 +10,15 @@ using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-builder.Logging.AddOpenTelemetry(options =>
+builder.Services.AddLogging(logging => logging.AddOpenTelemetry(options =>
 {
     options.IncludeFormattedMessage = true;
     options.IncludeScopes = true;
     options.SetResourceBuilder(ResourceBuilder.CreateDefault()
         .AddService(builder.Configuration["ServiceName"]!));
     options.AddOtlpExporter();
-});
+}));
+
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -40,6 +40,7 @@ builder.Services
             .AddService(builder.Configuration["ServiceName"]!))
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
+        .AddNpgsql()
         .AddOtlpExporter());
 
 builder.Services.AddDateOnlyTimeOnlyStringConverters();
@@ -63,7 +64,7 @@ app.UseCors(x => x
     .AllowAnyMethod()
     .AllowAnyHeader()
     .SetIsOriginAllowed(origin => true) // allow any origin
-    //.WithOrigins("https://localhost:44351")); // Allow only this origin can also have multiple origins separated with comma
+                                        //.WithOrigins("https://localhost:44351")); // Allow only this origin can also have multiple origins separated with comma
     .AllowCredentials()); // allow credentials
 
 app.UseOpenTelemetryPrometheusScrapingEndpoint();
