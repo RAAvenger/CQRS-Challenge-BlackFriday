@@ -16,7 +16,6 @@ namespace FoodReservation.LoadTester.BackgroundServices
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             using var scope = _serviceProvider.CreateScope();
-            using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var httpClientFactory = scope.ServiceProvider.GetRequiredService<IHttpClientFactory>();
             var users = new List<Task>();
             foreach (var i in Enumerable.Range(0, 5))
