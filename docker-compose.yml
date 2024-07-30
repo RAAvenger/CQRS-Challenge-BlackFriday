@@ -1,13 +1,13 @@
 services:
   #our application
-  FoodReservation:
+  BlackFriday:
     build:
-      dockerfile: FoodReservation/Dockerfile
+      dockerfile: BlackFriday/Dockerfile
       context: .
-    hostname: food-reservation
-    image: food-reservation
+    hostname: black-briday
+    image: black-briday
     environment:
-      - ServiceName=FoodReservation
+      - ServiceName=BlackFriday
       - ASPNETCORE_HTTP_PORTS=80
       - ASPNETCORE_URLS=http://*:80
       - ASPNETCORE_ENVIRONMENT=Development   
@@ -18,7 +18,7 @@ services:
     ports:
       - "127.0.0.1:32768:80"
     networks:
-      - FoodReservation
+      - BlackFriday
 
   #______________________________________________________________________________________________________
   #fake user
@@ -62,7 +62,7 @@ services:
       - ./prometheus:/etc/prometheus
       - prom_data:/prometheus
     networks:
-      - FoodReservation
+      - BlackFriday
 
   grafana:
     image: grafana/grafana
@@ -77,7 +77,7 @@ services:
       - ./grafana:/etc/grafana/provisioning/datasources
       - grafana_data:/var/lib/grafana
     networks:
-      - FoodReservation
+      - BlackFriday
 
   #______________________________________________________________________________________________________
   #log
@@ -89,7 +89,7 @@ services:
     ports:
       - "127.0.0.1:4317:4317"
     networks:
-      - FoodReservation
+      - BlackFriday
 
   setup:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
@@ -146,7 +146,7 @@ services:
       timeout: 5s
       retries: 120
     networks:
-      - FoodReservation
+      - BlackFriday
 
   es01:
     depends_on:
@@ -192,7 +192,7 @@ services:
       timeout: 10s
       retries: 120
     networks:
-      - FoodReservation
+      - BlackFriday
 
   kibana:
     depends_on:
@@ -226,7 +226,7 @@ services:
       timeout: 10s
       retries: 120
     networks:
-      - FoodReservation
+      - BlackFriday
 
   #______________________________________________________________________________________________________
   #trace
@@ -242,11 +242,11 @@ services:
     ports:
       - "16686:16686"
     networks:
-      - FoodReservation
+      - BlackFriday
 
 #================================================================================================network
 networks:
-  FoodReservation:
+  BlackFriday:
 
 #================================================================================================volumes
 volumes:
