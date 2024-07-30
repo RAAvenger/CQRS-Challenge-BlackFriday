@@ -15,8 +15,4 @@
 		<ProjectReference Include="..\BlackFriday.Domain\BlackFriday.Domain.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Usecases\" />
-	</ItemGroup>
-
 </Project>
