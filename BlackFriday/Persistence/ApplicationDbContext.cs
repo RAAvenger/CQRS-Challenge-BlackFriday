@@ -1,5 +1,4 @@
 ﻿using BlackFriday.Application.Repositories.Abstractions;
-using BlackFriday.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlackFriday.Infrastructure.Persistence
@@ -10,43 +9,44 @@ namespace BlackFriday.Infrastructure.Persistence
         {
         }
 
-        public DbSet<ReservableDailyFood> DailyFoods { get; set; }
-
-        public DbSet<ReservableFood> Foods { get; set; }
-
-        public DbSet<Domain.Entities.BlackFriday> Reservations { get; set; }
+        public DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<ReservableFood>()
-                .HasKey(x => x.Id);
+            modelBuilder.Entity<Product>(entity =>
+            {
+                entity.HasKey(x => x.Asin);
 
-            modelBuilder.Entity<ReservableDailyFood>()
-                .HasKey(x => new { x.FoodId, x.Date });
-
-            modelBuilder.Entity<Domain.Entities.BlackFriday>()
-                .HasKey(x => new { x.FoodId, x.UserId, x.Date });
-
-            // relations
-            modelBuilder.Entity<ReservableFood>()
-                .HasMany<ReservableDailyFood>()
-                .WithOne()
-                .HasForeignKey(x => x.FoodId)
-                .HasPrincipalKey(x => x.Id);
-
-            modelBuilder.Entity<ReservableFood>()
-                .HasMany<Domain.Entities.BlackFriday>()
-                .WithOne()
-                .HasForeignKey(x => x.FoodId)
-                .HasPrincipalKey(x => x.Id);
-
-            modelBuilder.Entity<ReservableDailyFood>()
-                .HasMany<Domain.Entities.BlackFriday>()
-                .WithOne()
-                .HasForeignKey(x => new { x.FoodId, x.Date })
-                .HasPrincipalKey(x => new { x.FoodId, x.Date });
+                entity.Property(e => e.Asin)
+                    .HasMaxLength(200)
+                    .HasColumnName("asin");
+                entity.Property(e => e.BoughtInLastMonth)
+                    .HasColumnName("boughtInLastMonth");
+                entity.Property(e => e.CategoryName)
+                    .HasMaxLength(200)
+                    .HasColumnName("categoryName");
+                entity.Property(e => e.ImgUrl)
+                    .HasMaxLength(200)
+                    .HasColumnName("imgUrl");
+                entity.Property(e => e.IsBestSeller)
+                    .HasColumnName("isBestSeller");
+                entity.Property(e => e.Price)
+                    .HasPrecision(28, 6)
+                    .HasColumnName("price");
+                entity.Property(e => e.ProductUrl)
+                    .HasMaxLength(200)
+                    .HasColumnName("productUrl");
+                entity.Property(e => e.Reviews)
+                    .HasColumnName("reviews");
+                entity.Property(e => e.Stars)
+                    .HasPrecision(28, 6)
+                    .HasColumnName("stars");
+                entity.Property(e => e.Title)
+                    .HasMaxLength(1500)
+                    .HasColumnName("title");
+            });
         }
     }
 }
