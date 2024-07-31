@@ -9,6 +9,7 @@ namespace BlackFriday.Infrastructure.Persistence
         {
         }
 
+        public DbSet<Basket> Baskets { get; set; }
         public DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -46,6 +47,11 @@ namespace BlackFriday.Infrastructure.Persistence
                 entity.Property(e => e.Title)
                     .HasMaxLength(1500)
                     .HasColumnName("title");
+            });
+
+            modelBuilder.Entity<Basket>(entity =>
+            {
+                entity.HasKey(x => new { x.ProductId, x.UserId, x.BasketId });
             });
         }
     }
