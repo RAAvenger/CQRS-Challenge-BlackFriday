@@ -1,0 +1,3 @@
+dotnet ef migrations add InitialCreate --output-dir Persistence\DbMigrations
+
+Add-Migration InitialCreate -OutputDir Persistence\DbMigrations

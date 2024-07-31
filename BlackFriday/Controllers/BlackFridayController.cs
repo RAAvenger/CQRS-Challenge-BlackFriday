@@ -1,0 +1,95 @@
+﻿using BlackFriday.Application.Repositories.Abstractions;
+using BlackFriday.Infrastructure.Controllers.Dtos;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace BlackFriday.Infrastructure.Controllers;
+
+[ApiController]
+public class BlackFridayController : ControllerBase
+{
+    private readonly IBlackFridaysDbContext _dbContext;
+
+    public BlackFridayController(IBlackFridaysDbContext dbContext)
+    {
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+    }
+
+    [HttpPost("add-item-to-basket")]
+    public async Task<ActionResult> AddItemToBasket([FromBody] AddItemToBasketRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        var item = await _dbContext.Products
+            .FirstOrDefaultAsync(x => x.Asin == request.ProductId, cancellationToken);
+        if (item is null)
+        {
+            return NotFound();
+        }
+        var itemExistsInBasket = await _dbContext.Baskets
+            .AnyAsync(x => x.ProductId == request.ProductId
+                    && x.BasketId == request.BasketId
+                    && x.UserId == request.UserId,
+                cancellationToken: cancellationToken);
+        if (itemExistsInBasket)
+        {
+            return BadRequest();
+        }
+
+        return Ok();
+    }
+
+    [HttpPost("checkout-basket")]
+    public async Task<ActionResult> CheckoutBasket([FromBody] CheckoutBasketRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        var basketItems = await _dbContext.Baskets
+            .Where(x => x.BasketId == request.BasketId && x.UserId == request.UserId && !x.IsCheckedOut)
+            .ToArrayAsync(cancellationToken);
+        if (basketItems.Length == 0)
+        {
+            return NotFound();
+        }
+        foreach (var item in basketItems)
+        {
+            item.IsCheckedOut = true;
+        }
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return Ok();
+    }
+
+    [HttpGet("categories")]
+    public async Task<ActionResult<IReadOnlyCollection<string>>> GetAllCategories(CancellationToken cancellationToken)
+    {
+        var categories = await _dbContext.Products
+            .GroupBy(x => x.CategoryName)
+            .Select(x => x.Key)
+            .ToArrayAsync(cancellationToken);
+
+        return Ok(categories);
+    }
+
+    [HttpGet("items/{id}")]
+    public async Task<ActionResult<IReadOnlyCollection<Product>>> GetItemById([FromRoute] string id, CancellationToken cancellationToken)
+    {
+        var item = await _dbContext.Products
+            .FirstOrDefaultAsync(x => x.Asin == id, cancellationToken);
+        if (item is null)
+        {
+            return NotFound();
+        }
+        return Ok(item);
+    }
+
+    [HttpGet("categories/{category}")]
+    public async Task<ActionResult<IReadOnlyCollection<Product>>> GetItemsForGivenCategory([FromRoute] string category, CancellationToken cancellationToken)
+    {
+        var categoryItems = await _dbContext.Products
+            .Where(x => x.CategoryName == category)
+            .ToArrayAsync(cancellationToken);
+        if (categoryItems.Length == 0)
+        {
+            return NotFound();
+        }
+        return Ok(categoryItems);
+    }
+}
