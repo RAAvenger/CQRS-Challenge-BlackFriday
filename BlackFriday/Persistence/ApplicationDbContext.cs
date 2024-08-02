@@ -11,6 +11,7 @@ namespace BlackFriday.Infrastructure.Persistence
 
         public DbSet<Basket> Baskets { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<ProductCount> ProductCounts { get; set; }
         public DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -58,6 +59,11 @@ namespace BlackFriday.Infrastructure.Persistence
             modelBuilder.Entity<Invoice>(entity =>
             {
                 entity.HasKey(x => new { x.UserId, x.BasketId });
+            });
+
+            modelBuilder.Entity<ProductCount>(entity =>
+            {
+                entity.HasKey(x => x.Asin);
             });
         }
     }
