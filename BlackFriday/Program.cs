@@ -19,7 +19,6 @@ builder.Services.AddLogging(logging => logging.AddOpenTelemetry(options =>
     options.AddOtlpExporter();
 }));
 
-
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("foodDb")));

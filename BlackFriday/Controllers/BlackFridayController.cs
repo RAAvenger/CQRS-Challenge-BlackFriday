@@ -2,6 +2,7 @@
 using BlackFriday.Infrastructure.Controllers.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using System.Text.Json;
 
 namespace BlackFriday.Infrastructure.Controllers;
@@ -35,6 +36,13 @@ public class BlackFridayController : ControllerBase
         {
             return BadRequest();
         }
+
+        var count = await _dbContext.ProductCounts.FirstAsync(x => x.Asin == item.Asin, cancellationToken: cancellationToken);
+        if (count.Count == 0)
+        {
+            return StatusCode((int)HttpStatusCode.PreconditionFailed, "not enough items");
+        }
+
         _dbContext.Baskets.Add(new Basket
         {
             BasketId = request.BasketId,
@@ -58,9 +66,22 @@ public class BlackFridayController : ControllerBase
         {
             return NotFound();
         }
+
+        var itemCounts = new Dictionary<string, ProductCount>();
+        foreach (var item in basketItems)
+        {
+            var count = await _dbContext.ProductCounts.FirstAsync(x => x.Asin == item.ProductId, cancellationToken: cancellationToken);
+            if (count.Count == 0)
+            {
+                return StatusCode((int)HttpStatusCode.PreconditionFailed, "not enough items");
+            }
+            itemCounts.Add(count.Asin, count);
+        }
+
         foreach (var item in basketItems)
         {
             item.IsCheckedOut = true;
+            itemCounts[item.ProductId].Count--;
         }
         var itemsJson = JsonSerializer.Serialize(basketItems.Select(x => x.ProductId).ToArray());
         _dbContext.Invoices.Add(new Invoice
