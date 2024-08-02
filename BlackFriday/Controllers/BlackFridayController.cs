@@ -35,6 +35,14 @@ public class BlackFridayController : ControllerBase
         {
             return BadRequest();
         }
+        _dbContext.Baskets.Add(new Basket
+        {
+            BasketId = request.BasketId,
+            UserId = request.UserId,
+            IsCheckedOut = false,
+            ProductId = request.ProductId,
+        });
+        await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return Ok();
     }
