@@ -2,6 +2,7 @@
 using BlackFriday.Infrastructure.Controllers.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace BlackFriday.Infrastructure.Controllers;
 
@@ -53,6 +54,14 @@ public class BlackFridayController : ControllerBase
         {
             item.IsCheckedOut = true;
         }
+        var itemsJson = JsonSerializer.Serialize(basketItems.Select(x => x.ProductId).ToArray());
+        _dbContext.Invoices.Add(new Invoice
+        {
+            BasketId = request.BasketId,
+            UserId = request.UserId,
+            Items = itemsJson
+        });
+
         await _dbContext.SaveChangesAsync(cancellationToken);
         return Ok();
     }
