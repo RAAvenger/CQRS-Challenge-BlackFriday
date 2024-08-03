@@ -1,4 +1,4 @@
-﻿namespace BlackFriday.Infrastructure;
+namespace BlackFriday.Infrastructure;
 
 public sealed class Product
 {
