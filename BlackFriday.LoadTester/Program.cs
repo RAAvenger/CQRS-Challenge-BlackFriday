@@ -4,12 +4,18 @@ using BlackFriday.LoadTester.BackgroundServices.ScenarioExecution.Abstraction;
 using BlackFriday.LoadTester.BackgroundServices.ScenarioExecution.LoadTestScenarios;
 using BlackFriday.LoadTester.UseCases;
 using BlackFriday.LoadTester.UseCases.Abstraction;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddHttpClient("black_friday", options => { options.BaseAddress = new Uri("http://localhost:32768"); });
+builder.Configuration.AddEnvironmentVariables("LOADTESTER_");
+
+builder.Services.AddHttpClient("black_friday", options =>
+{
+	options.BaseAddress = new Uri(builder.Configuration.GetValue("BLACKFRIDAY_SERVER_URI", "http://localhost:32768"));
+});
 
 builder.Services.AddHostedService<ScenarioExecutorBackgroundService>();
 
