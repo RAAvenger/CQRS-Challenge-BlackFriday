@@ -21,7 +21,7 @@ builder.Services.AddLogging(logging => logging.AddOpenTelemetry(options =>
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("foodDb")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("BlackFridayDb")));
 builder.Services.AddScoped<IBlackFridaysDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
 
 builder.Services.AddMediator(options => options.ServiceLifetime = ServiceLifetime.Transient);

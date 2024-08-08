@@ -15,6 +15,7 @@ services:
       - OTEL_EXPORTER_JAEGER_AGENT_PORT=6831
       - OTEL_EXPORTER_JAEGER_ENDPOINT=http://jaeger:14268/api/traces
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - ConnectionStrings__BlackFridayDb=Host=host.docker.internal;Database=black_friday_db;Username=postgres;Password=!@#123qwe   
     ports:
       - "127.0.0.1:32768:80"
     networks:
