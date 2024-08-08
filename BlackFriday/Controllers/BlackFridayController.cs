@@ -81,7 +81,6 @@ public class BlackFridayController : ControllerBase
 		foreach (var item in basketItems)
 		{
 			item.IsCheckedOut = true;
-			itemCounts[item.ProductId].Count--;
 		}
 		var itemsJson = JsonSerializer.Serialize(basketItems.Select(x => x.ProductId).ToArray());
 		_dbContext.Invoices.Add(new Invoice
@@ -92,6 +91,14 @@ public class BlackFridayController : ControllerBase
 		});
 
 		await _dbContext.SaveChangesAsync(cancellationToken);
+		foreach (var item in basketItems)
+		{
+			await _dbContext.ProductCounts
+				.Where(x => x.Asin == item.ProductId)
+				.ExecuteUpdateAsync(x => x.SetProperty(productCount => productCount.Count, 
+						productCount => productCount.Count + 1),
+					cancellationToken: cancellationToken);
+		}
 		return Ok();
 	}
 
