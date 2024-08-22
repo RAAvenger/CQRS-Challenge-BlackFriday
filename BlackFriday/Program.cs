@@ -1,4 +1,4 @@
-using BlackFriday.Application.Repositories.Abstractions;
+using BlackFriday.Application.Persistence.Abstraction;
 using BlackFriday.Infrastructure.BackgroundServices;
 using BlackFriday.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;

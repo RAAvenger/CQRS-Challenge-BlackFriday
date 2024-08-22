@@ -1,9 +1,11 @@
-using BlackFriday.Application.Repositories.Abstractions;
-using BlackFriday.Infrastructure.Controllers.Dtos;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Text.Json;
+using BlackFriday.Application.Persistence.Abstraction;
+using BlackFriday.Application.UseCases;
+using BlackFriday.Infrastructure.Controllers.Dtos;
+using Mediator;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlackFriday.Infrastructure.Controllers;
 
@@ -11,19 +13,20 @@ namespace BlackFriday.Infrastructure.Controllers;
 public class BlackFridayController : ControllerBase
 {
 	private readonly IBlackFridaysDbContext _dbContext;
+	private readonly IMediator _mediator;
 
-	public BlackFridayController(IBlackFridaysDbContext dbContext)
+	public BlackFridayController(IBlackFridaysDbContext dbContext, IMediator mediator)
 	{
 		_dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+		_mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 	}
 
 	[HttpPost("add-item-to-basket")]
 	public async Task<ActionResult> AddItemToBasket([FromBody] AddItemToBasketRequestDto request,
 		CancellationToken cancellationToken)
 	{
-		var item = await _dbContext.Products
-			.FirstOrDefaultAsync(x => x.Asin == request.ProductId, cancellationToken);
-		if (item is null)
+		var itemExists = await _dbContext.Products.AnyAsync(x => x.Asin == request.ProductId, cancellationToken);
+		if (!itemExists)
 		{
 			return NotFound();
 		}
@@ -37,20 +40,17 @@ public class BlackFridayController : ControllerBase
 			return BadRequest();
 		}
 
-		var count = await _dbContext.ProductCounts.FirstAsync(x => x.Asin == item.Asin, cancellationToken: cancellationToken);
+		var count = await _dbContext.ProductCounts.FirstAsync(x => x.Asin == request.ProductId, cancellationToken: cancellationToken);
 		if (count.Count == 0)
 		{
 			return StatusCode((int)HttpStatusCode.PreconditionFailed, "not enough items");
 		}
-
-		_dbContext.Baskets.Add(new Basket
+		await _mediator.Send(new AddItemToBasketCommand
 		{
 			BasketId = request.BasketId,
-			UserId = request.UserId,
-			IsCheckedOut = false,
 			ProductId = request.ProductId,
-		});
-		await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+			UserId = request.UserId
+		}, cancellationToken);
 
 		return Ok();
 	}
@@ -95,7 +95,7 @@ public class BlackFridayController : ControllerBase
 		{
 			await _dbContext.ProductCounts
 				.Where(x => x.Asin == item.ProductId)
-				.ExecuteUpdateAsync(x => x.SetProperty(productCount => productCount.Count, 
+				.ExecuteUpdateAsync(x => x.SetProperty(productCount => productCount.Count,
 						productCount => productCount.Count + 1),
 					cancellationToken: cancellationToken);
 		}
