@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text.Json;
 using BlackFriday.Application.Persistence.Abstraction;
 using BlackFriday.Application.UseCases;
 using BlackFriday.Infrastructure.Controllers.Dtos;
@@ -16,16 +15,19 @@ namespace BlackFriday.Infrastructure.Controllers;
 public class BlackFridayController : ControllerBase
 {
 	private readonly IValidator<AddItemToBasketRequestDto> _addItemToBasketRequestValidator;
+	private readonly IValidator<CheckoutBasketRequestDto> _checkoutBasketRequestValidator;
 	private readonly IBlackFridayDbContext _dbContext;
 	private readonly IMediator _mediator;
 
 	public BlackFridayController(IBlackFridayDbContextFactory dbContextFactory,
 		IMediator mediator,
-		IValidator<AddItemToBasketRequestDto> addItemToBasketRequestValidator)
+		IValidator<AddItemToBasketRequestDto> addItemToBasketRequestValidator,
+		IValidator<CheckoutBasketRequestDto> checkoutBasketRequestValidator)
 	{
 		_dbContext = dbContextFactory?.MakeDbContext() ?? throw new ArgumentNullException(nameof(dbContextFactory));
 		_mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 		_addItemToBasketRequestValidator = addItemToBasketRequestValidator ?? throw new ArgumentNullException(nameof(addItemToBasketRequestValidator));
+		_checkoutBasketRequestValidator = checkoutBasketRequestValidator ?? throw new ArgumentNullException(nameof(checkoutBasketRequestValidator));
 	}
 
 	[HttpPost("add-item-to-basket")]
@@ -66,46 +68,25 @@ public class BlackFridayController : ControllerBase
 	public async Task<ActionResult> CheckoutBasket([FromBody] CheckoutBasketRequestDto request,
 		CancellationToken cancellationToken)
 	{
-		var basketItems = await _dbContext.Baskets
-			.Where(x => x.BasketId == request.BasketId && x.UserId == request.UserId && !x.IsCheckedOut)
-			.ToArrayAsync(cancellationToken);
-		if (basketItems.Length == 0)
+		var validationResult = await _checkoutBasketRequestValidator.ValidateAsync(request, cancellationToken);
+		if (!validationResult.IsValid)
 		{
-			return NotFound();
-		}
-
-		var itemCounts = new Dictionary<string, ProductCount>();
-		foreach (var item in basketItems)
-		{
-			var count = await _dbContext.ProductCounts.FirstAsync(x => x.Asin == item.ProductId, cancellationToken: cancellationToken);
-			if (count.Count == 0)
+			if (validationResult.Errors.Any(x => x.ErrorCode == CheckoutBasketRequestDtoValidator.NotFoundErrorCode))
 			{
-				return StatusCode((int)HttpStatusCode.PreconditionFailed, "not enough items");
+				validationResult.AddToModelState(ModelState);
+				return ValidationProblem(statusCode: (int)HttpStatusCode.NotFound, modelStateDictionary: ModelState);
 			}
-			itemCounts.Add(count.Asin, count);
+			if (validationResult.Errors.Any(x => x.ErrorCode == CheckoutBasketRequestDtoValidator.PreConditionErrorCode))
+			{
+				validationResult.AddToModelState(ModelState);
+				return ValidationProblem(statusCode: (int)HttpStatusCode.PreconditionFailed, modelStateDictionary: ModelState);
+			}
 		}
-
-		foreach (var item in basketItems)
-		{
-			item.IsCheckedOut = true;
-		}
-		var itemsJson = JsonSerializer.Serialize(basketItems.Select(x => x.ProductId).ToArray());
-		_dbContext.Invoices.Add(new Invoice
+		await _mediator.Send(new CheckoutBasketCommand
 		{
 			BasketId = request.BasketId,
-			UserId = request.UserId,
-			Items = itemsJson
-		});
-
-		await _dbContext.SaveChangesAsync(cancellationToken);
-		foreach (var item in basketItems)
-		{
-			await _dbContext.ProductCounts
-				.Where(x => x.Asin == item.ProductId)
-				.ExecuteUpdateAsync(x => x.SetProperty(productCount => productCount.Count,
-						productCount => productCount.Count + 1),
-					cancellationToken: cancellationToken);
-		}
+			UserId = request.UserId
+		}, cancellationToken);
 		return Ok();
 	}
 
