@@ -23,7 +23,7 @@ public sealed class CheckoutBasketCommandHandler : IRequestHandler<CheckoutBaske
 
 	public async ValueTask<Unit> Handle(CheckoutBasketCommand request, CancellationToken cancellationToken)
 	{
-		var dbContext = _dbContextFactory.MakeDbContext();
+		using var dbContext = _dbContextFactory.MakeDbContext();
 		var basketItems = await dbContext.Baskets
 			.Where(x => x.BasketId == x.BasketId && x.UserId == x.UserId && !x.IsCheckedOut)
 			.ToArrayAsync(cancellationToken: cancellationToken);
