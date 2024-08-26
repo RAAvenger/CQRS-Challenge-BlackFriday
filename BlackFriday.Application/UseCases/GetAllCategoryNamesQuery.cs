@@ -24,10 +24,15 @@ public sealed class GetAllCategoryNamesQueryHandler : IRequestHandler<GetAllCate
 	public async ValueTask<IReadOnlyCollection<string>> Handle(GetAllCategoryNamesQuery request, CancellationToken cancellationToken)
 	{
 		using var activity = ApplicationActivityProvider.ActivitySource.StartActivity(nameof(GetAllCategoryNamesQuery));
-		if (_categories is null)
+		if (_categories is not null)
 		{
-			activity?.AddEvent(new ActivityEvent("wait for lock"));
-			await _semaphore.WaitAsync(cancellationToken);
+			return _categories;
+		}
+
+		activity?.AddEvent(new ActivityEvent("wait for lock"));
+		await _semaphore.WaitAsync(cancellationToken);
+		try
+		{
 			activity?.AddEvent(new ActivityEvent("enter lock"));
 			if (_categories is null)
 			{
@@ -35,6 +40,13 @@ public sealed class GetAllCategoryNamesQueryHandler : IRequestHandler<GetAllCate
 				_categories = await GetCategories(cancellationToken);
 			}
 			activity?.AddEvent(new ActivityEvent("exit lock"));
+		}
+		catch (Exception exception)
+		{
+			activity?.SetTag("exception", exception);
+		}
+		finally
+		{
 			_semaphore.Release(1);
 		}
 
@@ -45,8 +57,8 @@ public sealed class GetAllCategoryNamesQueryHandler : IRequestHandler<GetAllCate
 	{
 		using var dbContext = _dbContextFactory.MakeDbContext();
 		return await dbContext.Products
-					.GroupBy(x => x.CategoryName)
-					.Select(x => x.Key)
-					.ToArrayAsync(cancellationToken);
+			.GroupBy(x => x.CategoryName)
+			.Select(x => x.Key)
+			.ToArrayAsync(cancellationToken);
 	}
 }

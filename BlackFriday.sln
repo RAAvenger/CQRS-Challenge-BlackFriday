@@ -20,6 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		Directory.Packages.props = Directory.Packages.props
 		docker-compose.yml = docker-compose.yml
+		load-tester-docker-compose.yml = load-tester-docker-compose.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlackFriday.LoadTester", "BlackFriday.LoadTester\BlackFriday.LoadTester.csproj", "{6FB12346-6BDA-4B34-8D43-67837821AB2C}"

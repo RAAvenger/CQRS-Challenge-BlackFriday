@@ -8,4 +8,4 @@ services:
     image: black-friday-load-tester
     environment:
       - LOADTESTER_BLACKFRIDAY_SERVER_URI=http://host.docker.internal:32768
-      - LOADTESTER_USERSCOUNT=5
+      - LOADTESTER_USERSCOUNT=50

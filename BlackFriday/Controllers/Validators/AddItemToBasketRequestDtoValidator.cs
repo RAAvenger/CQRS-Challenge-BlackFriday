@@ -40,8 +40,7 @@ public class AddItemToBasketRequestDtoValidator : AbstractValidator<AddItemToBas
 						RuleFor(x => x).MustAsync(async (request, cancellationToken) =>
 							{
 								using var dbContext = dbContextFactory.MakeDbContext();
-								var productCount = await dbContext.ProductCounts.FirstAsync(x => x.Asin == request.ProductId, cancellationToken: cancellationToken);
-								return productCount.Count > 0;
+								return await dbContext.ProductCounts.AnyAsync(productCount => productCount.Asin == request.ProductId && productCount.Count > 0, cancellationToken: cancellationToken);
 							})
 							.WithErrorCode(PreConditionErrorCode)
 							.WithMessage("not enough items")

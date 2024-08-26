@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
-using BlackFriday.Application.Commons.Tracing;
 using System.Diagnostics;
+using BlackFriday.Application.Commons.Tracing;
 using BlackFriday.Application.Persistence.Abstraction;
 using BlackFriday.Infrastructure;
 using Mediator;
@@ -35,24 +35,34 @@ public sealed class GetProductsOfCategoryQueryHandler : IRequestHandler<GetProdu
 		}
 
 		var semaphore = _semaphores.GetOrAdd(request.Id, (id) => new SemaphoreSlim(1, 1));
-		activity?.AddEvent(new ActivityEvent("wait for lock"));
-		semaphore.Wait(cancellationToken);
-		activity?.AddEvent(new ActivityEvent("enter lock"));
-		if (!_categories.TryGetValue(request.Id, out products))
+		try
 		{
-			activity?.AddEvent(new ActivityEvent("get category from database"));
-			products = await GetProductsFromDbAsync(request, cancellationToken);
-			if (products.Count != 0)
+			activity?.AddEvent(new ActivityEvent("wait for lock"));
+			semaphore.Wait(cancellationToken);
+			activity?.AddEvent(new ActivityEvent("enter lock"));
+			if (!_categories.TryGetValue(request.Id, out products))
 			{
-				_categories.Add(request.Id, products);
+				activity?.AddEvent(new ActivityEvent("get category from database"));
+				products = await GetProductsFromDbAsync(request, cancellationToken);
+				if (products.Count != 0)
+				{
+					_categories.Add(request.Id, products);
+				}
+				else
+				{
+					_semaphores.Remove(request.Id, out _);
+				}
 			}
-			else
-			{
-				_semaphores.Remove(request.Id, out _);
-			}
+			activity?.AddEvent(new ActivityEvent("exit lock"));
 		}
-		activity?.AddEvent(new ActivityEvent("exit lock"));
-		semaphore.Release(1);
+		catch (Exception exception)
+		{
+			activity?.SetTag("exception", exception);
+		}
+		finally
+		{
+			semaphore.Release(1);
+		}
 		return products;
 	}
 

@@ -35,24 +35,34 @@ public sealed class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQ
 		}
 
 		var semaphore = _semaphores.GetOrAdd(request.Id, (id) => new SemaphoreSlim(1, 1));
-		activity?.AddEvent(new ActivityEvent("wait for lock"));
-		semaphore.Wait(cancellationToken);
-		activity?.AddEvent(new ActivityEvent("enter lock"));
-		if (!_products.TryGetValue(request.Id, out product))
+		try
 		{
-			activity?.AddEvent(new ActivityEvent("get product from database"));
-			product = await GetProductFromDbAsync(request, cancellationToken);
-			if (product is not null)
+			activity?.AddEvent(new ActivityEvent("wait for lock"));
+			semaphore.Wait(cancellationToken);
+			activity?.AddEvent(new ActivityEvent("enter lock"));
+			if (!_products.TryGetValue(request.Id, out product))
 			{
-				_products.Add(request.Id, product);
+				activity?.AddEvent(new ActivityEvent("get product from database"));
+				product = await GetProductFromDbAsync(request, cancellationToken);
+				if (product is not null)
+				{
+					_products.Add(request.Id, product);
+				}
+				else
+				{
+					_semaphores.Remove(request.Id, out _);
+				}
 			}
-			else
-			{
-				_semaphores.Remove(request.Id, out _);
-			}
+			activity?.AddEvent(new ActivityEvent("exit lock"));
 		}
-		activity?.AddEvent(new ActivityEvent("exit lock"));
-		semaphore.Release(1);
+		catch (Exception exception)
+		{
+			activity?.SetTag("exception", exception);
+		}
+		finally
+		{
+			semaphore.Release(1);
+		}
 		return product;
 	}
 
