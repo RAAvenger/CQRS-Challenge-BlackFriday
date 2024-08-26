@@ -3,6 +3,9 @@ using System.Text.Json;
 using BlackFriday.Application.Persistence.Abstraction;
 using BlackFriday.Application.UseCases;
 using BlackFriday.Infrastructure.Controllers.Dtos;
+using BlackFriday.Infrastructure.Controllers.Validators;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,38 +15,42 @@ namespace BlackFriday.Infrastructure.Controllers;
 [ApiController]
 public class BlackFridayController : ControllerBase
 {
-	private readonly IBlackFridaysDbContext _dbContext;
+	private readonly IValidator<AddItemToBasketRequestDto> _addItemToBasketRequestValidator;
+	private readonly IBlackFridayDbContext _dbContext;
 	private readonly IMediator _mediator;
 
-	public BlackFridayController(IBlackFridaysDbContext dbContext, IMediator mediator)
+	public BlackFridayController(IBlackFridayDbContextFactory dbContextFactory,
+		IMediator mediator,
+		IValidator<AddItemToBasketRequestDto> addItemToBasketRequestValidator)
 	{
-		_dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+		_dbContext = dbContextFactory?.MakeDbContext() ?? throw new ArgumentNullException(nameof(dbContextFactory));
 		_mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+		_addItemToBasketRequestValidator = addItemToBasketRequestValidator ?? throw new ArgumentNullException(nameof(addItemToBasketRequestValidator));
 	}
 
 	[HttpPost("add-item-to-basket")]
 	public async Task<ActionResult> AddItemToBasket([FromBody] AddItemToBasketRequestDto request,
 		CancellationToken cancellationToken)
 	{
-		var itemExists = await _dbContext.Products.AnyAsync(x => x.Asin == request.ProductId, cancellationToken);
-		if (!itemExists)
+		var validationResult = await _addItemToBasketRequestValidator.ValidateAsync(request, cancellationToken);
+		if (!validationResult.IsValid)
 		{
-			return NotFound();
-		}
-		var itemExistsInBasket = await _dbContext.Baskets
-			.AnyAsync(x => x.ProductId == request.ProductId
-					&& x.BasketId == request.BasketId
-					&& x.UserId == request.UserId,
-				cancellationToken: cancellationToken);
-		if (itemExistsInBasket)
-		{
-			return BadRequest();
-		}
+			if (validationResult.Errors.Any(x => x.ErrorCode == AddItemToBasketRequestDtoValidator.NotFoundErrorCode))
+			{
+				validationResult.AddToModelState(ModelState);
+				return ValidationProblem(statusCode: (int)HttpStatusCode.NotFound, modelStateDictionary: ModelState);
+			}
+			if (validationResult.Errors.Any(x => x.ErrorCode == AddItemToBasketRequestDtoValidator.BadRequestErrorCode))
+			{
+				validationResult.AddToModelState(ModelState);
+				return ValidationProblem(statusCode: (int)HttpStatusCode.BadRequest, modelStateDictionary: ModelState);
+			}
 
-		var count = await _dbContext.ProductCounts.FirstAsync(x => x.Asin == request.ProductId, cancellationToken: cancellationToken);
-		if (count.Count == 0)
-		{
-			return StatusCode((int)HttpStatusCode.PreconditionFailed, "not enough items");
+			if (validationResult.Errors.Any(x => x.ErrorCode == AddItemToBasketRequestDtoValidator.PreConditionErrorCode))
+			{
+				validationResult.AddToModelState(ModelState);
+				return ValidationProblem(statusCode: (int)HttpStatusCode.PreconditionFailed, modelStateDictionary: ModelState);
+			}
 		}
 		await _mediator.Send(new AddItemToBasketCommand
 		{

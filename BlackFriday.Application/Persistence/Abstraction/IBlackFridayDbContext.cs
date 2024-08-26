@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlackFriday.Application.Persistence.Abstraction;
 
-public interface IBlackFridaysDbContext : IDisposable
+public interface IBlackFridayDbContext : IDisposable
 {
 	public DbSet<Basket> Baskets { get; }
 	public DbSet<Invoice> Invoices { get; }

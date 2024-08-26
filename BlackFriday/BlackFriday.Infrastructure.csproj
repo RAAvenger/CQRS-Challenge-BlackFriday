@@ -10,6 +10,9 @@
 	<ItemGroup>
 		<PackageReference Include="DateOnlyTimeOnly.AspNet" />
 		<PackageReference Include="DateOnlyTimeOnly.AspNet.Swashbuckle" />
+		<PackageReference Include="FluentValidation" />
+		<PackageReference Include="FluentValidation.AspNetCore" />
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

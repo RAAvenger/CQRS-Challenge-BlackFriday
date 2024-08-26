@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlackFriday.Infrastructure.Persistence
 {
-	public class ApplicationDbContext : DbContext, IBlackFridaysDbContext
+	public class ApplicationDbContext : DbContext, IBlackFridayDbContext
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {

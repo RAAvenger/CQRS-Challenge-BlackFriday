@@ -11,7 +11,7 @@ public sealed class AddItemToBasketCommand : IRequest
 	public required string UserId { get; init; }
 }
 
-internal sealed class AddItemToBasketCommandHandler : IRequestHandler<AddItemToBasketCommand>
+public sealed class AddItemToBasketCommandHandler : IRequestHandler<AddItemToBasketCommand>
 {
 	private readonly IBlackFridayDbContextFactory _dbContextFactory;
 

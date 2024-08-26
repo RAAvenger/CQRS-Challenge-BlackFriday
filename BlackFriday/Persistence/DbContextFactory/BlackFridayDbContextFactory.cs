@@ -1,5 +1,4 @@
 using BlackFriday.Application.Persistence.Abstraction;
-using BlackFriday.Infrastructure.Persistence.DbContextFactory.Abstraction;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlackFriday.Infrastructure.Persistence.DbContextFactory;
@@ -13,7 +12,7 @@ public class BlackFridayDbContextFactory : IBlackFridayDbContextFactory
 		_dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
 	}
 
-	public IBlackFridaysDbContext MakeDbContext()
+	public IBlackFridayDbContext MakeDbContext()
 	{
 		return _dbContextFactory.CreateDbContext();
 	}
