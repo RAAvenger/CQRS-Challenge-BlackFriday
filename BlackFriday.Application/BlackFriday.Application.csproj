@@ -10,6 +10,7 @@
 		<PackageReference Include="Mediator.Abstractions" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+		<PackageReference Include="System.Diagnostics.DiagnosticSource" />
 	</ItemGroup>
 
 	<ItemGroup>
