@@ -6,8 +6,8 @@ namespace BlackFriday.LoadTester.BackgroundServices.ScenarioExecution;
 
 internal class ScenarioExecutorBackgroundService : BackgroundService
 {
-	private readonly IDiceRoller _diceRoller;
 	private readonly IConfiguration _configuration;
+	private readonly IDiceRoller _diceRoller;
 	private readonly ILoadTestScenarioProvider _scenarioFactory;
 
 	public ScenarioExecutorBackgroundService(ILoadTestScenarioProvider scenarioFactory,
@@ -28,9 +28,13 @@ internal class ScenarioExecutorBackgroundService : BackgroundService
 			{
 				while (!stoppingToken.IsCancellationRequested)
 				{
-					var scenarioType = _diceRoller.RollTheDice();
-					var scenario = _scenarioFactory.MakeScenario(scenarioType);
-					await scenario.ExecuteAsync(stoppingToken);
+					try
+					{
+						var scenarioType = _diceRoller.RollTheDice();
+						var scenario = _scenarioFactory.MakeScenario(scenarioType);
+						await scenario.ExecuteAsync(stoppingToken);
+					}
+					catch { }
 				}
 			}, stoppingToken));
 		}
