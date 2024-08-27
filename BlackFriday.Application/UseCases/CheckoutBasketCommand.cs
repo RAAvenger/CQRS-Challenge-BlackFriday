@@ -46,7 +46,7 @@ public sealed class CheckoutBasketCommandHandler : IRequestHandler<CheckoutBaske
 			await dbContext.ProductCounts
 				.Where(x => x.Asin == item.ProductId)
 				.ExecuteUpdateAsync(x => x.SetProperty(productCount => productCount.Count,
-						productCount => productCount.Count + 1),
+						productCount => productCount.Count - 1),
 					cancellationToken: cancellationToken);
 		}
 		return Unit.Value;
