@@ -79,6 +79,7 @@ public sealed class GetProductsOfCategoryQueryHandler : IRequestHandler<GetProdu
 		using var dbContext = _dbContextFactory.MakeDbContext();
 		return await dbContext.Products
 			.Where(x => x.CategoryName == request.Id)
+			.Take(100)
 			.ToArrayAsync(cancellationToken);
 	}
 }

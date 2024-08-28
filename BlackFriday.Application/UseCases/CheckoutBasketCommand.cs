@@ -39,8 +39,17 @@ public sealed class CheckoutBasketCommandHandler : IRequestHandler<CheckoutBaske
 			UserId = request.UserId,
 			Items = itemsJson
 		});
+		using (var transaction = dbContext.Database.BeginTransaction())
+		{
+			await UpdateCountsAsync(dbContext, basketItems, cancellationToken);
+			await dbContext.SaveChangesAsync(cancellationToken);
+			await transaction.CommitAsync(cancellationToken);
+		}
+		return Unit.Value;
+	}
 
-		await dbContext.SaveChangesAsync(cancellationToken);
+	private static async Task UpdateCountsAsync(IBlackFridayDbContext dbContext, Basket[] basketItems, CancellationToken cancellationToken)
+	{
 		foreach (var item in basketItems)
 		{
 			await dbContext.ProductCounts
@@ -49,6 +58,5 @@ public sealed class CheckoutBasketCommandHandler : IRequestHandler<CheckoutBaske
 						productCount => productCount.Count - 1),
 					cancellationToken: cancellationToken);
 		}
-		return Unit.Value;
 	}
 }

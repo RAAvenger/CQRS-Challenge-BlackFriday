@@ -1,5 +1,6 @@
 using BlackFriday.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace BlackFriday.Application.Persistence.Abstraction;
 
@@ -11,4 +12,6 @@ public interface IBlackFridayDbContext : IDisposable
 	public DbSet<Product> Products { get; }
 
 	Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+
+	public DatabaseFacade Database { get; }
 }
