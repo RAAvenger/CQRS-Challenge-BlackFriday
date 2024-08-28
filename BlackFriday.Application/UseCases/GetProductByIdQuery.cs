@@ -58,6 +58,7 @@ public sealed class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQ
 		catch (Exception exception)
 		{
 			activity?.SetTag("exception", exception);
+			throw;
 		}
 		finally
 		{

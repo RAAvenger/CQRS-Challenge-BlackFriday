@@ -44,6 +44,7 @@ public sealed class GetAllCategoryNamesQueryHandler : IRequestHandler<GetAllCate
 		catch (Exception exception)
 		{
 			activity?.SetTag("exception", exception);
+			throw;
 		}
 		finally
 		{

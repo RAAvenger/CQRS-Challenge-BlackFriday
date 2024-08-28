@@ -53,7 +53,8 @@ services:
   #metrics
   prometheus:
     image: prom/prometheus
-    container_name: prometheus
+    container_name: BlackFriday-prometheus
+    hostname: prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
     ports:
@@ -67,7 +68,8 @@ services:
 
   grafana:
     image: grafana/grafana
-    container_name: grafana
+    container_name: BlackFriday-grafana
+    hostname: grafana
     ports:
       - 3000:3000
     restart: unless-stopped

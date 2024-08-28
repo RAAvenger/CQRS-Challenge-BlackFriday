@@ -27,43 +27,51 @@ public sealed class GetProductsOfCategoryQueryHandler : IRequestHandler<GetProdu
 	public async ValueTask<IReadOnlyCollection<Product>> Handle(GetProductsOfCategoryQuery request, CancellationToken cancellationToken)
 	{
 		using var activity = ApplicationActivityProvider.ActivitySource.StartActivity(nameof(GetProductsOfCategoryQuery));
-		activity?.SetTag("CategoryId", request.Id);
 		IReadOnlyCollection<Product> products = null;
-		if (_categories.TryGetValue(request.Id, out products))
-		{
-			return products;
-		}
-
-		var semaphore = _semaphores.GetOrAdd(request.Id, (id) => new SemaphoreSlim(1, 1));
 		try
 		{
-			activity?.AddEvent(new ActivityEvent("wait for lock"));
-			semaphore.Wait(cancellationToken);
-			activity?.AddEvent(new ActivityEvent("enter lock"));
-			if (!_categories.TryGetValue(request.Id, out products))
+			activity?.SetTag("CategoryId", request.Id);
+			if (_categories.TryGetValue(request.Id, out products))
 			{
-				activity?.AddEvent(new ActivityEvent("get category from database"));
-				products = await GetProductsFromDbAsync(request, cancellationToken);
-				if (products.Count != 0)
-				{
-					_categories.Add(request.Id, products);
-				}
-				else
-				{
-					_semaphores.Remove(request.Id, out _);
-				}
+				return products;
 			}
-			activity?.AddEvent(new ActivityEvent("exit lock"));
-		}
-		catch (Exception exception)
-		{
-			activity?.SetTag("exception", exception);
+
+			var semaphore = _semaphores.GetOrAdd(request.Id, (id) => new SemaphoreSlim(1, 1));
+			try
+			{
+				activity?.AddEvent(new ActivityEvent("wait for lock"));
+				semaphore.Wait(cancellationToken);
+				activity?.AddEvent(new ActivityEvent("enter lock"));
+				if (!_categories.TryGetValue(request.Id, out products))
+				{
+					activity?.AddEvent(new ActivityEvent("get category from database"));
+					products = await GetProductsFromDbAsync(request, cancellationToken);
+					if (products.Count != 0)
+					{
+						_categories.Add(request.Id, products);
+					}
+					else
+					{
+						_semaphores.Remove(request.Id, out _);
+					}
+				}
+				activity?.AddEvent(new ActivityEvent("exit lock"));
+			}
+			catch (Exception exception)
+			{
+				activity?.SetTag("exception", exception);
+				throw;
+			}
+			finally
+			{
+				semaphore.Release(1);
+			}
+			return products;
 		}
 		finally
 		{
-			semaphore.Release(1);
+			activity?.SetTag("products_count", products.Count);
 		}
-		return products;
 	}
 
 	private async ValueTask<IReadOnlyCollection<Product>> GetProductsFromDbAsync(GetProductsOfCategoryQuery request, CancellationToken cancellationToken)
