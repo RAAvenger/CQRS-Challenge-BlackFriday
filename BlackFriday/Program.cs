@@ -1,3 +1,4 @@
+using BlackFriday.Application.Commons.Tracing;
 using BlackFriday.Application.Persistence.Abstraction;
 using BlackFriday.Infrastructure.BackgroundServices;
 using BlackFriday.Infrastructure.Persistence;
@@ -41,6 +42,7 @@ builder.Services
 		.AddPrometheusExporter())
 	.WithTracing(options => options.SetResourceBuilder(ResourceBuilder.CreateDefault()
 			.AddService(builder.Configuration["ServiceName"]!))
+		.AddSource(ApplicationActivityProvider.ActivitySourceName)
 		.AddAspNetCoreInstrumentation()
 		.AddHttpClientInstrumentation()
 		.AddNpgsql()
