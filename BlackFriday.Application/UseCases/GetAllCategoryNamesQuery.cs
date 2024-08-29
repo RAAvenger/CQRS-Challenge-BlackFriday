@@ -37,7 +37,7 @@ public sealed class GetAllCategoryNamesQueryHandler : IRequestHandler<GetAllCate
 			if (_categories is null)
 			{
 				activity?.AddEvent(new ActivityEvent("propagate categories"));
-				_categories = await GetCategories(cancellationToken);
+				_categories = await GetCategoriesFromDbAsync(cancellationToken);
 			}
 			activity?.AddEvent(new ActivityEvent("exit lock"));
 		}
@@ -54,7 +54,7 @@ public sealed class GetAllCategoryNamesQueryHandler : IRequestHandler<GetAllCate
 		return _categories;
 	}
 
-	private async Task<string[]> GetCategories(CancellationToken cancellationToken)
+	private async Task<string[]> GetCategoriesFromDbAsync(CancellationToken cancellationToken)
 	{
 		using var dbContext = _dbContextFactory.MakeDbContext();
 		return await dbContext.Products
